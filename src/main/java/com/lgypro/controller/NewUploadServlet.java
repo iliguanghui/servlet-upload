@@ -31,11 +31,14 @@ public class NewUploadServlet extends HttpServlet {
             final DiskFileItemFactory fileItemFactory = DiskFileItemFactory.builder().get();
             final JakartaServletFileUpload<DiskFileItem, DiskFileItemFactory> fileUpload = new JakartaServletFileUpload<>(fileItemFactory);
             final List<DiskFileItem> items;
+            getServletContext().log("start receiving data from tcp stream");
             try {
                 items = fileUpload.parseRequest(new JakartaServletRequestContext(request));
             } catch (FileUploadException e) {
                 throw new ServletException(e);
             }
+            // 执行到这里的时候，tcp文件上传流已经读取完毕，保存在文件系统。根据上传的文件大小，parseRequest可能执行时间非常长
+            getServletContext().log("receive data from tcp stream successfully!");
             if (items != null && items.size() > 0) {
                 for (DiskFileItem item : items) {
                     if (!item.isFormField()) {
